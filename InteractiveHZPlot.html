@@ -66,7 +66,7 @@ d3.json("https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI
   // Add a scale for bubble size
   var z = d3.scaleLinear()
     .domain([0, 100])
-    .range([ 4, 40]);
+    .range([ 0.1, 100]);
 
 
   // -1- Create a tooltip div that is hidden by default:
@@ -104,16 +104,96 @@ d3.json("https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI
 
 
     // ---------------------------//
-  //       HIGHLIGHT GROUP      //
+  // HIGHLIGHT GROUP funcion tecata  //
   // ---------------------------//
 
   // What to do when one group is hovered
   var highlight = function(d){
-    // reduce opacity of all groups
-    d3.selectAll(".bubbles").style("opacity", .05)
-    // expect the one that is hovered
-    d3.selectAll("."+d).style("opacity", 1)
+
+
+   
+
+   d3.selectAll(".bubbles").each(function(d,i) {
+  if(d3.select(this).attr("r") > 1.25 )
+  {d3.select(this).style("opacity",.05)                         
+
+                                        }
+    
+})
+
   }
+
+  // What to do when one group is hovered
+  var highlight1 = function(d){
+
+
+   
+
+   d3.selectAll(".bubbles").each(function(d,i) {
+  if(d3.select(this).attr("r") > 2  || d3.select(this).attr("r") < 1.25)
+  {d3.select(this).style("opacity",.05)
+
+                              }
+    
+})
+
+  }
+
+  var highlight2 = function(d){
+
+
+   
+
+   d3.selectAll(".bubbles").each(function(d,i) {
+  if(d3.select(this).attr("r") > 6  || d3.select(this).attr("r") < 2)
+  {d3.select(this).style("opacity",.05)}
+    
+})
+
+  }
+
+
+  var highlight3 = function(d){
+
+
+   
+
+   d3.selectAll(".bubbles").each(function(d,i) {
+  if(d3.select(this).attr("r") > 15  || d3.select(this).attr("r") < 6)
+  {d3.select(this).style("opacity",.05)}
+    
+})
+
+  }
+
+  var highlight4 = function(d){
+
+
+   
+
+   d3.selectAll(".bubbles").each(function(d,i) {
+  if(d3.select(this).attr("r") > 22.4  || d3.select(this).attr("r") < 15)
+  {d3.select(this).style("opacity",.05)}
+    
+})
+
+  }
+
+  var highlight5 = function(d){
+
+
+   
+
+   d3.selectAll(".bubbles").each(function(d,i) {
+  if(d3.select(this).attr("r") < 22.4)
+  {d3.select(this).style("opacity",.05)}
+    
+})
+
+  }
+
+
+
 
   // And when it is not hovered anymore
   var noHighlight = function(d){
@@ -161,20 +241,140 @@ d3.json("https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI
     })
 
 
-        // Add one dot in the legend for each name.
     var size = 20
-    var allgroups = ["0-1","2-5","5-20","20-100"]
+    var allgroups = (["Subterran"])
     svg.selectAll("myrect")
       .data(allgroups)
       .enter()
       .append("circle")
         .attr("cx", 390)
-        .attr("cy", function(d,i){ return 10 + i*(size+5)}) // 100 is where the first dot appears. 25 is the distance between dots
+        .attr("cy", 20) 
         .attr("r", 7)
-        .style("fill", function(d){ return myColor(d3.schemeSet2)})
+        .style("fill", function(d){ return myColor(d)})
+        .on("mouseover", highlight)
+        .on("mouseleave", noHighlight)
+
+
+    var allgroups1 = (["Terran"])
+    svg.selectAll("myrect")
+      .data(allgroups1)
+      .enter()
+      .append("circle")
+        .attr("cx", 390 )
+        .attr("cy", 45) 
+        .attr("r", 7)
+        .style("fill", function(d){ return myColor(d)})
+        .on("mouseover", highlight1)
+        .on("mouseleave", noHighlight)
+
+
+
+    var allgroups2 = (["Superterran"])
+    svg.selectAll("myrect")
+      .data(allgroups2)
+      .enter()
+      .append("circle")
+        .attr("cx", 390 )
+        .attr("cy", 70) 
+        .attr("r", 7)
+        .style("fill", function(d){ return myColor(d)})
+        .on("mouseover", highlight2)
+        .on("mouseleave", noHighlight)
+
+
+
+    var allgroups3 = (["Neptunian"])
+    svg.selectAll("myrect")
+      .data(allgroups3)
+      .enter()
+      .append("circle")
+        .attr("cx", 390 )
+        .attr("cy", 95) 
+        .attr("r", 7)
+        .style("fill", function(d){ return myColor(d)})
+        .on("mouseover", highlight3)
+        .on("mouseleave", noHighlight)
+
+    var allgroups4 = (["Jovian"])
+    svg.selectAll("myrect")
+      .data(allgroups4)
+      .enter()
+      .append("circle")
+        .attr("cx", 390 )
+        .attr("cy", 120) 
+        .attr("r", 7)
+        .style("fill", function(d){ return myColor(d)})
+        .on("mouseover", highlight4)
+        .on("mouseleave", noHighlight)
+
+
+       svg.selectAll("mylabels")
+      .data(allgroups)
+      .enter()
+      .append("text")
+        .attr("x", 390 + size*.8)
+        .attr("y", 20) 
+        .style("fill", function(d){ return myColor(d)})
+        .text(function(d){ return d})
+        .attr("text-anchor", "left")
+        .style("alignment-baseline", "middle")
         .on("mouseover", highlight)
         .on("mouseleave", noHighlight)
         
+
+        svg.selectAll("mylabels")
+      .data(allgroups1)
+      .enter()
+      .append("text")
+        .attr("x", 390 + size*.8)
+        .attr("y", 45) 
+        .style("fill", function(d){ return myColor(d)})
+        .text(function(d){ return d})
+        .attr("text-anchor", "left")
+        .style("alignment-baseline", "middle")
+        .on("mouseover", highlight1)
+        .on("mouseleave", noHighlight)
+
+
+        svg.selectAll("mylabels")
+      .data(allgroups2)
+      .enter()
+      .append("text")
+        .attr("x", 390 + size*.8)
+        .attr("y", 70) 
+        .style("fill", function(d){ return myColor(d)})
+        .text(function(d){ return d})
+        .attr("text-anchor", "left")
+        .style("alignment-baseline", "middle")
+        .on("mouseover", highlight2)
+        .on("mouseleave", noHighlight)
+
+        svg.selectAll("mylabels")
+      .data(allgroups3)
+      .enter()
+      .append("text")
+        .attr("x", 390 + size*.8)
+        .attr("y", 95) 
+        .style("fill", function(d){ return myColor(d)})
+        .text(function(d){ return d})
+        .attr("text-anchor", "left")
+        .style("alignment-baseline", "middle")
+        .on("mouseover", highlight3)
+        .on("mouseleave", noHighlight)
+
+
+        svg.selectAll("mylabels")
+      .data(allgroups4)
+      .enter()
+      .append("text")
+        .attr("x", 390 + size*.8)
+        .attr("y", 120) 
+        .style("fill", function(d){ return myColor(d)})
+        .text(function(d){ return d})
+        .attr("text-anchor", "left")
+        .style("alignment-baseline", "middle")
+        .on("mouseover", highlight4)
+        .on("mouseleave", noHighlight)
 
   })
 </script>
