@@ -56,6 +56,7 @@
 
 <body>
 
+
   <!-- ======= Header ======= -->
   <header id="header" class="fixed-top ">
     <div class="container d-flex align-items-center">
@@ -80,6 +81,7 @@
   <section id="hero" class="d-flex align-items-center"></section>
 
   <!-- <div id="my_dataviz"></div> -->
+  
   <script>
 
 
@@ -87,8 +89,9 @@
   
   // setting the dimensions and margins 
   var margin = {top: 60, right: 20, bottom: 30, left: 185},
-      width = 700 - margin.left - margin.right,
-      height = 520 - margin.top - margin.bottom;
+      width = 1200 - margin.left - margin.right, //1200
+      height = 600 - margin.top - margin.bottom,
+      border = 0.5;
 
   // append the svg object to the body of the page
   var svg = d3.select("#hero")
@@ -97,53 +100,114 @@
       .attr("height", height + margin.top + margin.bottom)
     .append("g")
       .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
+            "translate(" + margin.left + "," + margin.top + ")")
+      .attr("border",border);
+
+//      var svg1 = d3.select("#hero")
+//     .append("svg")
+//       .attr("width", 500 )
+//       .attr("height", 150)
+//       .attr("transform","translate(" + margin.right + "," + margin.top + ")") 
+
+//     .append("g")
+//       .attr("transform","translate(" + margin.right + "," + margin.top + ")")
+//       //.attr("border",border);
+// ;
+
+  //chart's border
+    var borderPath = svg.append("rect")
+          .attr("x", 0)
+          .attr("y", 0)
+          .attr("height", height)
+          .attr("width", width)
+          .style("stroke", "white")
+          .style("fill", "rgb(25, 33, 75")   //backoground-color of the graph
+          .style("stroke-width", border);;
 
 
+    //doesn't work
+    function notNull(d){
+      if (d==null) return null 
+      else return d;
+    }
+
+      
     // setting the colors of the dots depending of the Planet Radius
     function colors(d){
-        if (d==null) return "gray";
-        else if (d<=10) return "pink";
-        else if (d<=20) return "lightgreen";
-        else return "orange"
+        if (d==null) return "gray"; //null
+        else if (d<=1) return "red"; //Subterran
+        else if (d<=1.5) return "yellow"; //Terran 
+        else if (d<=5) return "lightgreen"; //Superterran 
+        else if (d<=20) return "pink"; //Neptunian 
+        else return "orange" //Jovian
       }
 
-    //Read the data and 
-    d3.json("https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?table=exoplanets&select=st_teff,pl_insol,pl_rade,pl_name,pl_pnum,pl_bmassj,pl_pelink&format=json", function(data) {
 
+
+  //Read  data of NASA Exoplanet Archive
+  d3.json("https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?table=exoplanets&select=st_teff,pl_insol,pl_rade,pl_name,pl_pnum, pl_bmassj,pl_pelink,st_spstr&format=json", function(data) {
+
+ 
+    var starType = [
+      {
+        name: "M",
+        value: data.st_teff = 3500,
+        type: "Number"
+      },
+      {
+        name: "K",
+        value: data.st_teff = 4500,
+        type: "Number"
+      },
+      {
+        name: "G",
+        value: data.st_teff = 5500,
+        type: "Number"
+      },
+      {
+        name: "F",
+        value: data.st_teff = 6500,
+        type: "Number"
+      }];
+
+//Spectral st_spstr
+  
     // add x-axis scale
     var x = d3.scaleLinear()
-      .domain([0, 600])
+      .domain([0,800]) //3900
       .range([ 0, width])
     svg.append("g")
       .attr("transform", "translate(0," + height + ")")
-      // .style("fill", "white")
-      .call(d3.axisBottom(x));
+      .call(d3.axisBottom(x).ticks(10))
+      .style("stroke", "white");
       
 
     // add y-axis
     var y = d3.scaleLinear()
-      .domain([0, 9000])
+      .domain([0, 9000]) //13500
       .range([ height, 0])
     svg.append("g")
-      // .style("fill", "white")
-      .call(d3.axisLeft(y));
-    svg.append("text").style("fill", "white")
+      .call(d3.axisLeft(y).ticks(8));
+      //.style("stroke", "white");
+  
 
+    var y1 = d3.scaleLinear()
+      .domain([0,9000]) //13500
+       .range([ height, 0])
+    svg.append("g")
+    .attr("transform", "translate("+width+",0)")
+      .call(d3.axisRight(y1).ticks(8));
 
     svg.selectAll(".tick line").attr("stroke", "white");
     svg.selectAll(".tick text").attr("stroke", "white");
-
 
     // add a scale for bubble size
     var z = d3.scaleLinear()
       .domain([0, 100])
       .range([ 4, 40]);
 
-
   // INTERACTIVE FUNCTIONS 
   // Create a tooltip div that is hidden by default
-
 
   var tooltip = d3.select("#hero")
     .append("div")
@@ -176,13 +240,13 @@
       .transition()
       .duration(200)
       .style("opacity", 0)
-  }
+    }
   
   // x-axis title
   svg.append("text")
     .attr("class", "x label")
     .attr("text-anchor", "end")
-    .attr("x", width - 190)
+    .attr("x", width - 450)
     .attr("y", height + 30)
     .style("font-family","sans-serif")
     .style("fill", "white")
@@ -207,8 +271,9 @@
     .enter()
     .append("circle")
       .attr("class", "bubbles")
-      .attr("cx", function (d) { return x(d.pl_insol) * (24/200) ; } )
-      .attr("cy", function (d) { return height - y(d.st_teff) ;} )
+      .attr("cx", function (d) { return x(notNull(d.pl_insol))  ; }) //* (24/200)
+      .attr("cy", function (d) { return y(notNull(d.st_teff)) ;} ) //height - 
+      //.attr("cy", function (d) { return height - y(d.st_spstrerr) ;} )
       .attr("r", function (d) { return z(d.pl_rade); })
       .style("fill", function (d) { return colors(d.pl_rade); } )
       .style("opacity", 1)
@@ -222,8 +287,9 @@
     window.open(
       d.pl_pelink 
     );
-    });
-
+    });   
+  
+ 
   });
   </script>
   </script>
@@ -317,7 +383,7 @@
   <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
   <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
   <script src="assets/vendor/php-email-form/validate.js"></script>
-  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
   <script src="assets/vendor/waypoints/noframework.waypoints.js"></script>
 
   <!-- Template Main JS File -->

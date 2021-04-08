@@ -1,0 +1,276 @@
+
+<!------------------------------------------------
+  
+Kelmary Gonzalez-Rodriguez
+Undergraduate Senior Student
+Department of Computer Science
+University of Puerto Rico - Arecibo 
+
+February 2021 - May 2021
+----------------------------------------------------->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Interactive HZ Plot</title>
+  <script src = "https://d3js.org/d3.v4.js"></script>
+  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+  
+  <style>
+    body {
+      background-color: lightblue;
+    }
+    h1 {
+      font-family: sans-serif;
+      font-size: 30px;
+      font-weight: 500;
+      padding: 30px;
+      color: black;
+    }
+
+    .bubbles {
+    stroke-width: 2px;
+    stroke: white;
+    }
+
+    .bubbles:hover {
+      stroke: black;
+    }
+  </style> 
+
+<body>
+
+  <h1>Interactive Habitable Zone</h1>
+  <div id="my_dataviz"></div>
+  <script>
+
+
+//SETTING THE GRAPH//SETTING THE GRAPH
+  
+  // setting the dimensions and margins 
+  var margin = {top: 60, right: 20, bottom: 30, left: 185},
+      width = 1200 - margin.left - margin.right, //1200
+      height = 600 - margin.top - margin.bottom, //520
+      border = 0.5;
+
+  // append the svg object to the body of the page
+  var svg = d3.select("#my_dataviz")
+    .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")")
+      .attr("border",border);
+
+    //  var svg1 = d3.select("#my_dataviz")
+    // .append("svg")
+    //   .attr("width", 500 )
+    //   .attr("height", 150)
+    // .append("g")
+    //   .attr("transform","translate(" + margin.right + "," + margin.top + ")")
+      //.attr("border",border);
+;
+
+  //chart's border
+    var borderPath = svg.append("rect")
+          .attr("x", 0)
+          .attr("y", 0)
+          .attr("height", height)
+          .attr("width", width)
+          .style("stroke", "black")
+          .style("fill", "none")   //backoground-color of the graph
+          .style("stroke-width", border);;
+
+
+    //doesn't work
+    function notNull(d){
+      if (d==null) return null 
+      else return d;
+    }
+
+      
+    // setting the colors of the dots depending of the Planet Radius
+    function colors(d){
+        if (d==null) return "gray"; //null
+        else if (d<=1) return "red"; //Subterran
+        else if (d<=1.5) return "yellow"; //Terran 
+        else if (d<=5) return "lightgreen"; //Superterran 
+        else if (d<=20) return "pink"; //Neptunian 
+        else return "orange" //Jovian
+      }
+
+
+
+  //Read  data of NASA Exoplanet Archive
+  d3.json("https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?table=exoplanets&select=st_teff,pl_insol,pl_rade,pl_name,pl_pnum, pl_bmassj,pl_pelink,st_spstr&format=json", function(data) {
+
+ 
+    var starType = [
+      {
+        name: "M",
+        value: data.st_teff = 3500,
+        type: "Number"
+      },
+      {
+        name: "K",
+        value: data.st_teff = 4500,
+        type: "Number"
+      },
+      {
+        name: "G",
+        value: data.st_teff = 5500,
+        type: "Number"
+      },
+      {
+        name: "F",
+        value: data.st_teff = 6500,
+        type: "Number"
+      }];
+
+//Spectral st_spstr
+  
+    // add x-axis scale
+    var x = d3.scaleLinear() //scaleLinear
+      .domain([0,800]) //3900
+      .range([ 0, width])
+    svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x).ticks(10))
+      .style("stroke", "black");
+      
+
+    // add y-axis
+    var y = d3.scaleLinear()
+      .domain([0, 9000]) //13500
+      .range([ height, 0])
+    svg.append("g")
+      .call(d3.axisLeft(y).ticks(8));
+      //.style("stroke", "black");
+  
+
+    var y1 = d3.scaleLinear()
+      .domain([0,7000])
+       .range([ height, 0])
+    svg.append("g")
+    .attr("transform", "translate("+width+",0)")
+      .call(d3.axisRight(y1).ticks(8));
+
+    svg.selectAll(".tick line").attr("stroke", "black");
+    svg.selectAll(".tick text").attr("stroke", "black");
+
+    // add a scale for bubble size
+    var z = d3.scaleLinear()
+      .domain([0, 100])
+      .range([ 4, 40]);
+
+  // INTERACTIVE FUNCTIONS 
+  // Create a tooltip div that is hidden by default
+
+  var tooltip = d3.select("#my_dataviz")
+    .append("div")
+      .style("opacity", 0)
+      .attr("class", "tooltip")
+      .style("background-color", "black")
+      .style("border-radius", "5px")
+      .style("padding", "10px")
+      .style("color", "white")
+
+  // Create interactive tooltip functions:
+  //      functions that displays the planet data(name, radius and mass) when the mouse is inside the bubble 
+  var showTooltip = function(d) {
+    tooltip
+      .transition()
+      .duration(200)
+    tooltip
+      .style("opacity", 1)
+      .html("Name:" + d.pl_name+ ", Radius: "+d.pl_rade+", Mass:"+ d.pl_bmassj+ ", Stellar Temp: "+ d.st_teff +", Flux: "+d.pl_insol)
+      .style("left", (d3.mouse(this)[0]+30) + "px")
+      .style("top", (d3.mouse(this)[1]+30) + "px")
+  }
+  var moveTooltip = function(d) {
+    tooltip
+      .style("left", (d3.mouse(this)[0]+30) + "px")
+      .style("top", (d3.mouse(this)[1]+30) + "px")
+  }
+  var hideTooltip = function(d) {
+    tooltip
+      .transition()
+      .duration(200)
+      .style("opacity", 0)
+    }
+  
+  // x-axis title
+  svg.append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", width - 450)
+    .attr("y", height + 30)
+    .style("font-family","sans-serif")
+    .style("fill", "black")
+    .text("Planet Flux");
+
+  // y-axis title
+    svg.append("text")
+      .attr("class", "y label")
+      .attr("text-anchor", "end")
+      .attr("y", -50)
+      .attr("x", -100)
+      .attr("dy", ".75em")
+      .attr("transform", "rotate(-90)")
+      .style("fill", "black")
+      .style("font-family","sans-serif")
+      .text("Stellar Temperature (K)");
+    
+  // Add dots
+  svg.append('g')
+    .selectAll("dot")
+    .data(data)
+    .enter()
+    .append("circle")
+      .attr("class", "bubbles")
+      .attr("cx", function (d) { return x(notNull(d.pl_insol))  ; }) //* (24/200)
+      .attr("cy", function (d) { return y(notNull(d.st_teff)) ;} ) //height - 
+      //.attr("cy", function (d) { return height - y(d.st_spstrerr) ;} )
+      .attr("r", function (d) { return z(d.pl_rade); })
+      .style("fill", function (d) { return colors(d.pl_rade); } )
+      .style("opacity", 1)
+  // Setting the Tooltip functions
+    .on("mouseover", showTooltip )
+    .on("mousemove", moveTooltip )
+    .on("mouseleave", hideTooltip )
+  //by clicking a bubble it takes you to a page with complete data of the planet
+    .on('click', function(d) { 
+    console.log('open tab')
+    window.open(
+      d.pl_pelink 
+    );
+    });   
+  
+      // svg1.append("circle").attr("cx",10).attr("cy",130).attr("r", 6).style("fill", "gray")
+      // svg1.append("circle").attr("cx",40).attr("cy",160).attr("r", 6).style("fill", "red")
+      // svg1.append("circle").attr("cx",200).attr("cy",190).attr("r", 6).style("fill", "yellow")
+      // svg1.append("circle").attr("cx",200).attr("cy",220).attr("r", 6).style("fill", "lightgreen")
+      // svg1.append("circle").attr("cx",200).attr("cy",250).attr("r", 6).style("fill", "pink")
+      // svg1.append("circle").attr("cx",200).attr("cy",280).attr("r", 6).style("fill", "orange")
+
+      // svg1.append("text").attr("x", 20).attr("y", 130).text("null").style("font-size", "15px").attr("alignment-baseline","middle")
+      // svg1.append("text").attr("x", 260).attr("y", 13).text("Subterran").style("font-size", "15px").attr("alignment-baseline","middle")
+      // svg1.append("text").attr("x", 220).attr("y", 130).text("Terran").style("font-size", "15px").attr("alignment-baseline","middle")
+      // svg1.append("text").attr("x", 220).attr("y", 130).text("Superterran").style("font-size", "15px").attr("alignment-baseline","middle")
+      // svg1.append("text").attr("x", 220).attr("y", 130).text("Neptunian").style("font-size", "15px").attr("alignment-baseline","middle")
+      // svg1.append("text").attr("x", 220).attr("y", 130).text("Jovian").style("font-size", "15px").attr("alignment-baseline","middle")
+        
+
+  });
+  </script>
+
+</body>  
+</head>
+
+
+
