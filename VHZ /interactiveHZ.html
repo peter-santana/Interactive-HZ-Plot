@@ -7,6 +7,9 @@ Department of Computer Science
 University of Puerto Rico - Arecibo 
 
 February 2021 - May 2021
+
+
+*********** ONLY GRAPH *********************
 ----------------------------------------------------->
 
 <!DOCTYPE html>
@@ -22,7 +25,7 @@ February 2021 - May 2021
   
   <style>
     body {
-      background-color: lightblue;
+      background-color: white;
     }
     h1 {
       font-family: sans-serif;
@@ -34,25 +37,31 @@ February 2021 - May 2021
 
     .bubbles {
     stroke-width: 2px;
-    stroke: white;
+    stroke: gray;
     }
 
     .bubbles:hover {
       stroke: black;
+      stroke-width: 2px;
     }
+
+    /* svg{
+      padding-top: 50%;
+    } */
   </style> 
 
 <body>
 
   <h1>Interactive Habitable Zone</h1>
   <div id="my_dataviz"></div>
-  <script>
 
+  <script>
+    // let image = url("https://imagine.gsfc.nasa.gov/features/cosmic/images/gottjuric.jpg");
 
 //SETTING THE GRAPH//SETTING THE GRAPH
   
   // setting the dimensions and margins 
-  var margin = {top: 60, right: 20, bottom: 30, left: 185},
+  var margin = {top: 80, right: 30, bottom: 30, left: 185},
       width = 1200 - margin.left - margin.right, //1200
       height = 600 - margin.top - margin.bottom, //520
       border = 0.5;
@@ -62,6 +71,7 @@ February 2021 - May 2021
     .append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
+      
     .append("g")
       .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")")
@@ -83,9 +93,14 @@ February 2021 - May 2021
           .attr("height", height)
           .attr("width", width)
           .style("stroke", "black")
-          .style("fill", "none")   //backoground-color of the graph
-          .style("stroke-width", border);;
+          .style("fill", "none")   //backoground-color of the graph - chequear image
+          .style("stroke-width", border);
 
+    var map = svg.append("image")
+          .attr("xlink:href","img/habitableZone.png")
+          .attr("width",width)
+          .attr("height", height);
+          // .attr("z-index",);
 
     //doesn't work
     function notNull(d){
@@ -97,11 +112,11 @@ February 2021 - May 2021
     // setting the colors of the dots depending of the Planet Radius
     function colors(d){
         if (d==null) return "gray"; //null
-        else if (d<=1) return "red"; //Subterran
-        else if (d<=1.5) return "yellow"; //Terran 
-        else if (d<=5) return "lightgreen"; //Superterran 
-        else if (d<=20) return "pink"; //Neptunian 
-        else return "orange" //Jovian
+        else if (d<=1) return "brown"; //Subterran
+        else if (d<=1.5) return "blue"; //Terran 
+        else if (d<=5) return "#88B4FF"; //Superterran 
+        else if (d<=20) return "lightblue"; //Neptunian 
+        else return "#FFF888" //Jovian
       }
 
 
@@ -110,6 +125,7 @@ February 2021 - May 2021
   d3.json("https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?table=exoplanets&select=st_teff,pl_insol,pl_rade,pl_name,pl_pnum, pl_bmassj,pl_pelink,st_spstr&format=json", function(data) {
 
  
+
     var starType = [
       {
         name: "M",
@@ -136,8 +152,9 @@ February 2021 - May 2021
   
     // add x-axis scale
     var x = d3.scaleLinear() //scaleLinear
-      .domain([0,800]) //3900
-      .range([ 0, width])
+    // var x = d3.scaleLog() //logaritmical scale
+      .domain([0,2000]) //3900
+      .range([ width, 0 ])
     svg.append("g")
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x).ticks(10))
@@ -153,20 +170,31 @@ February 2021 - May 2021
       //.style("stroke", "black");
   
 
-    var y1 = d3.scaleLinear()
-      .domain([0,7000])
-       .range([ height, 0])
-    svg.append("g")
-    .attr("transform", "translate("+width+",0)")
-      .call(d3.axisRight(y1).ticks(8));
 
+    // second y axis------------------------
+    // var y1 = d3.scaleLinear()
+    //   .domain([0,7000])
+    //    .range([ height, 0])
+    // svg.append("g")
+    // .attr("transform", "translate("+width+",0)")
+    //   .call(d3.axisRight(y1).ticks(8));
+
+
+
+    //adding tickline in the graph
     svg.selectAll(".tick line").attr("stroke", "black");
     svg.selectAll(".tick text").attr("stroke", "black");
+
+
 
     // add a scale for bubble size
     var z = d3.scaleLinear()
       .domain([0, 100])
-      .range([ 4, 40]);
+      // .domain([0, 100])
+      .range([ 4, 100]);
+
+
+
 
   // INTERACTIVE FUNCTIONS 
   // Create a tooltip div that is hidden by default
@@ -239,10 +267,14 @@ February 2021 - May 2021
       .attr("r", function (d) { return z(d.pl_rade); })
       .style("fill", function (d) { return colors(d.pl_rade); } )
       .style("opacity", 1)
+
+
   // Setting the Tooltip functions
     .on("mouseover", showTooltip )
     .on("mousemove", moveTooltip )
     .on("mouseleave", hideTooltip )
+
+
   //by clicking a bubble it takes you to a page with complete data of the planet
     .on('click', function(d) { 
     console.log('open tab')
@@ -252,11 +284,11 @@ February 2021 - May 2021
     });   
   
       // svg1.append("circle").attr("cx",10).attr("cy",130).attr("r", 6).style("fill", "gray")
-      // svg1.append("circle").attr("cx",40).attr("cy",160).attr("r", 6).style("fill", "red")
-      // svg1.append("circle").attr("cx",200).attr("cy",190).attr("r", 6).style("fill", "yellow")
-      // svg1.append("circle").attr("cx",200).attr("cy",220).attr("r", 6).style("fill", "lightgreen")
-      // svg1.append("circle").attr("cx",200).attr("cy",250).attr("r", 6).style("fill", "pink")
-      // svg1.append("circle").attr("cx",200).attr("cy",280).attr("r", 6).style("fill", "orange")
+      // svg1.append("circle").attr("cx",40).attr("cy",160).attr("r", 6).style("fill", "brown")
+      // svg1.append("circle").attr("cx",200).attr("cy",190).attr("r", 6).style("fill", "blue")
+      // svg1.append("circle").attr("cx",200).attr("cy",220).attr("r", 6).style("fill", "#88B4FF")
+      // svg1.append("circle").attr("cx",200).attr("cy",250).attr("r", 6).style("fill", "lightblue")
+      // svg1.append("circle").attr("cx",200).attr("cy",280).attr("r", 6).style("fill", "#FFF888")
 
       // svg1.append("text").attr("x", 20).attr("y", 130).text("null").style("font-size", "15px").attr("alignment-baseline","middle")
       // svg1.append("text").attr("x", 260).attr("y", 13).text("Subterran").style("font-size", "15px").attr("alignment-baseline","middle")
@@ -271,6 +303,3 @@ February 2021 - May 2021
 
 </body>  
 </head>
-
-
-

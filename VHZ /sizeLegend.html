@@ -1,0 +1,87 @@
+<script src = "https://d3js.org/d3.v4.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+<title>Size Legend</title>
+
+
+<script>
+
+  var margin = {top: 60, right: 20, bottom: 30, left: 185},
+      width = 1200 - margin.left - margin.right, //1200
+      height = 520 - margin.top - margin.bottom,
+      border = 0.5;
+
+  // append the svg object to the body of the page
+  var svg = d3.select("#hero")
+    .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")")
+      .attr("border",border);
+
+    var borderPath = svg.append("rect")
+          .attr("x", 0)
+          .attr("y", 0)
+          .attr("height", height)
+          .attr("width", width)
+          .style("stroke", "black")
+          .style("fill", "rgb(25, 33, 75")   //backoground-color of the graph
+          .style("stroke-width", border);;
+
+      function notNull(d){
+        if (d==null) return null
+        else return d;
+      }
+
+      
+    // setting the colors of the dots depending of the Planet Radius
+    function colors(d){
+        if (d==null) return "gray"; //null
+        else if (d<=1) return "red"; //Subterran
+        else if (d<=1.5) return "yellow"; //Terran 
+        else if (d<=5) return "lightgreen"; //Superterran 
+        else if (d<=20) return "pink"; //Neptunian 
+        else return "orange" //Jovian
+      }
+
+      function sizeLegend(d) {
+          if (colors(d) == "red")
+            return "Subterran (Mars-size)";
+          else if (colors(d) == "yellow")
+            return "Terran (Earth-size)";
+          else if (colors(d) == "lightgreen")
+            return "Superterran (Super-Earth/Mini-Neptunes)";
+          else if (colors(d) == "pink")
+            return "Neptunian (Neptune-size)";
+          else if (colors(d) == "orange")
+            return "Jovian (Jupiter-size)";
+            else
+            return "Unknown Size";
+      }
+
+
+      svg.append("circle").attr("cx",200).attr("cy",130).attr("r", 6).style("fill", "#gray")
+      svg.append("circle").attr("cx",200).attr("cy",160).attr("r", 6).style("fill", "#red")
+      svg.append("circle").attr("cx",200).attr("cy",160).attr("r", 6).style("fill", "#yellow")
+      svg.append("circle").attr("cx",200).attr("cy",160).attr("r", 6).style("fill", "#lightgreen")
+      svg.append("circle").attr("cx",200).attr("cy",160).attr("r", 6).style("fill", "#pink")
+      svg.append("circle").attr("cx",200).attr("cy",160).attr("r", 6).style("fill", "#orange")
+
+      svg.append("text").attr("x", 220).attr("y", 130).text("null").style("font-size", "15px").attr("alignment-baseline","baseline")
+      svg.append("text").attr("x", 220).attr("y", 160).text("Subterran").style("font-size", "15px").attr("alignment-baseline","middle")
+      svg.append("text").attr("x", 220).attr("y", 160).text("Terran").style("font-size", "15px").attr("alignment-baseline","middle")
+      svg.append("text").attr("x", 220).attr("y", 160).text("Superterran").style("font-size", "15px").attr("alignment-baseline","middle")
+      svg.append("text").attr("x", 220).attr("y", 160).text("Neptunian").style("font-size", "15px").attr("alignment-baseline","middle")
+      svg.append("text").attr("x", 220).attr("y", 160).text("Jovian").style("font-size", "15px").attr("alignment-baseline","middle")
+          
+
+//       d3.json("https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?table=exoplanets&select=st_teff,pl_insol,pl_rade,pl_name,pl_pnum, pl_bmassj,pl_pelink,st_spstr&format=json", function(data) {
+        
+//           console.log("Hola")
+
+
+// });
+
+</script>
