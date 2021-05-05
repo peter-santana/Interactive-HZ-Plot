@@ -148,31 +148,9 @@
 
 
   //Read  data of NASA Exoplanet Archive
-  d3.json("https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?table=exoplanets&select=st_teff,pl_insol,pl_rade,pl_name,pl_pnum, pl_bmassj,pl_pelink,st_spstr&format=json", function(data) {
-
- 
-    var starType = [
-      {
-        name: "M",
-        value: data.st_teff = 3500,
-        type: "Number"
-      },
-      {
-        name: "K",
-        value: data.st_teff = 4500,
-        type: "Number"
-      },
-      {
-        name: "G",
-        value: data.st_teff = 5500,
-        type: "Number"
-      },
-      {
-        name: "F",
-        value: data.st_teff = 6500,
-        type: "Number"
-      }];
-
+  //d3.json("https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?table=exoplanets&select=st_teff,pl_insol,pl_rade,pl_name,pl_pnum, pl_bmassj,pl_pelink,st_spstr&format=json", function(data) {
+  d3.json("https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select+st_teff,pl_insol,pl_rade,pl_name,pl_pnum, pl_bmassj,pl_pelink,st_spstr+from+pscomppars&format=json", function(data){
+    
 //Spectral st_spstr
   
     // add x-axis scale

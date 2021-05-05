@@ -122,31 +122,30 @@ February 2021 - May 2021
 
 
   //Read  data of NASA Exoplanet Archive
-  d3.json("https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?table=exoplanets&select=st_teff,pl_insol,pl_rade,pl_name,pl_pnum, pl_bmassj,pl_pelink,st_spstr&format=json", function(data) {
-
+      d3.json("https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select+pl_name,st_teff,pl_insol,pl_rade,pl_pnum, pl_bmassj,pl_pelink,st_spstr+from+pscomppars&format=json", function(data){
  
 
-    var starType = [
-      {
-        name: "M",
-        value: data.st_teff = 3500,
-        type: "Number"
-      },
-      {
-        name: "K",
-        value: data.st_teff = 4500,
-        type: "Number"
-      },
-      {
-        name: "G",
-        value: data.st_teff = 5500,
-        type: "Number"
-      },
-      {
-        name: "F",
-        value: data.st_teff = 6500,
-        type: "Number"
-      }];
+    // var starType = [
+    //   {
+    //     name: "M",
+    //     value: data.st_teff = 3500,
+    //     type: "Number"
+    //   },
+    //   {
+    //     name: "K",
+    //     value: data.st_teff = 4500,
+    //     type: "Number"
+    //   },
+    //   {
+    //     name: "G",
+    //     value: data.st_teff = 5500,
+    //     type: "Number"
+    //   },
+    //   {
+    //     name: "F",
+    //     value: data.st_teff = 6500,
+    //     type: "Number"
+    //   }];
 
 //Spectral st_spstr
   
@@ -267,13 +266,10 @@ February 2021 - May 2021
       .attr("r", function (d) { return z(d.pl_rade); })
       .style("fill", function (d) { return colors(d.pl_rade); } )
       .style("opacity", 1)
-
-
   // Setting the Tooltip functions
     .on("mouseover", showTooltip )
     .on("mousemove", moveTooltip )
     .on("mouseleave", hideTooltip )
-
 
   //by clicking a bubble it takes you to a page with complete data of the planet
     .on('click', function(d) { 
@@ -282,21 +278,9 @@ February 2021 - May 2021
       d.pl_pelink 
     );
     });   
-  
-      // svg1.append("circle").attr("cx",10).attr("cy",130).attr("r", 6).style("fill", "gray")
-      // svg1.append("circle").attr("cx",40).attr("cy",160).attr("r", 6).style("fill", "brown")
-      // svg1.append("circle").attr("cx",200).attr("cy",190).attr("r", 6).style("fill", "blue")
-      // svg1.append("circle").attr("cx",200).attr("cy",220).attr("r", 6).style("fill", "#88B4FF")
-      // svg1.append("circle").attr("cx",200).attr("cy",250).attr("r", 6).style("fill", "lightblue")
-      // svg1.append("circle").attr("cx",200).attr("cy",280).attr("r", 6).style("fill", "#FFF888")
 
-      // svg1.append("text").attr("x", 20).attr("y", 130).text("null").style("font-size", "15px").attr("alignment-baseline","middle")
-      // svg1.append("text").attr("x", 260).attr("y", 13).text("Subterran").style("font-size", "15px").attr("alignment-baseline","middle")
-      // svg1.append("text").attr("x", 220).attr("y", 130).text("Terran").style("font-size", "15px").attr("alignment-baseline","middle")
-      // svg1.append("text").attr("x", 220).attr("y", 130).text("Superterran").style("font-size", "15px").attr("alignment-baseline","middle")
-      // svg1.append("text").attr("x", 220).attr("y", 130).text("Neptunian").style("font-size", "15px").attr("alignment-baseline","middle")
-      // svg1.append("text").attr("x", 220).attr("y", 130).text("Jovian").style("font-size", "15px").attr("alignment-baseline","middle")
-        
+//-------------------------------------
+
 
   });
   </script>
