@@ -22,7 +22,8 @@ February 2021 - May 2021
   <script src = "https://d3js.org/d3.v4.js"></script>
   <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
   <link rel="icon" href="img/logo_phl.png" type="image" sizes="16x16">
-  
+  <link href="style.css" rel="stylesheet">
+
   <style>
     body {
       background-color: white;
@@ -34,6 +35,7 @@ February 2021 - May 2021
       padding: 30px;
       color: black;
     }
+
 
     .bubbles {
     stroke-width: 2px;
@@ -53,6 +55,14 @@ February 2021 - May 2021
 <body>
 
   <h1>Interactive Habitable Zone</h1>
+
+
+  <div>
+    <input type="checkbox" class="vhz" value="Terran" checked><label>group A</label>
+    <input type="checkbox" class="vhz" value="B" checked><label>group B</label>
+    <input type="checkbox" class="vhz" value="C" checked><label>group C</label>
+  </div>
+
   <div id="my_dataviz"></div>
 
   <script>
@@ -118,14 +128,20 @@ February 2021 - May 2021
   //Read  data of NASA Exoplanet Archive
       d3.json("https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select+pl_name,st_teff,pl_insol,pl_rade,sy_pnum,pl_bmassj+from+pscomppars&format=json", function(data){
 
-//Spectral st_spstr
-    var filteredflux = data.filter(function(el) { return el.pl_insol != null;});  //filter flux nulls
+//filtered data on plot
+    var filteredflux = data.filter(function(el) { return el.pl_insol != null ;});  //filter flux nulls
     var filteredfinal = filteredflux.filter(function(el) {return el.st_teff != null;}); //filter teff nulls
   
+   // var filtered_unknown_size = data.filter(function(el) { return el.pl_rade == null ;}); 
+    
+
+    
+
+
     // add x-axis scale
     var x = d3.scaleLog() //scaleLinear()
       .base(Math.E)
-      .domain([Math.exp(-0.5), Math.exp(11)])//11 - 0,2.0
+      .domain([Math.exp(-0.5), Math.exp(8)])//11 - 0,2.0
       .range([ width, 0 ]);
     svg.append("g")
       .attr("transform", "translate(0," + height + ")")
@@ -153,14 +169,6 @@ February 2021 - May 2021
       .range([ 4, 100]);
     
 
-
-
-
-
-
-
-
-
     function radious(pl_rade) {
       if (pl_rade >= 15) {
         return 30; 
@@ -170,6 +178,7 @@ February 2021 - May 2021
       } else if (pl_rade==null) {
         return 1; 
       } 
+
     }
 
     function fluxes(pl_insol) {
@@ -188,12 +197,50 @@ February 2021 - May 2021
       }
     }
 
+    function setSize(pl_rade){
+
+      var pl_size;
+      
+      if (pl_rade==null) {
+        pl_size = "Unknown";
+      return pl_size }
+
+        else if (pl_rade<=1) {
+          pl_size = "Subterran";
+        return pl_size }
+
+        else if (pl_rade<=3) {
+          pl_size = "Terran";
+        return pl_size }
+
+        else if (pl_rade<=12) {
+          pl_size = "Superterran";
+        return pl_size }
+
+        else if (pl_rade<=15) {
+          pl_size = "Neptunian";
+        return pl_size }
+        else {
+          pl_size = "Jovian";
+        return pl_size }
+
+      
+
+
+
+    }
+
+    function unknown_size(pl_rade){
+      if (pl_rade==null) 
+      
+      return "Unknown"; 
+
+    }
 
 
 
 
-
-
+    
 
 
   // INTERACTIVE FUNCTIONS 
@@ -217,7 +264,7 @@ February 2021 - May 2021
       .duration(200)
     tooltip
       .style("opacity", 1)
-      .html("Name:" + d.pl_name+ ", Radius: "+d.pl_rade+", Mass:"+ d.pl_bmassj+ ", Stellar Temp: "+ d.st_teff +", Flux: "+d.pl_insol)
+      .html("Name:" + d.pl_name+ ", Radius: "+d.pl_rade+", Mass:"+ d.pl_bmassj+ ", Stellar Temp: "+ d.st_teff +", Flux: "+d.pl_insol+", Size:"+ setSize(d.pl_rade))
       .style("left", (d3.mouse(this)[0]+30) + "px")
       .style("top", (d3.mouse(this)[1]+30) + "px")
   }
@@ -232,12 +279,6 @@ February 2021 - May 2021
       .duration(200)
       .style("opacity", 0)
     }
-
-
-
-
-
-
 
   // x-axis title
   svg.append("text")
@@ -265,7 +306,7 @@ February 2021 - May 2021
 //-------------------------------------
 
 
-  // Declare Legend Constants
+  // Declare Static Legend Legend 
   var sep = 60; //separation between labels
   var color = ["gray", "brown","blue","#88B4FF","white","#FFF888"]; // Spectral type colors
   var type = ["Unknow", "Subterran", "Terran    ","Superterran  ", "   Neptunian","Jovian"] // Spectral Type Names
@@ -319,11 +360,53 @@ February 2021 - May 2021
       window.open("https://exoplanetarchive.ipac.caltech.edu/overview/" + d.pl_name, "_blank")
       }
     )
+
+  function update(){
+    // For each check box:
+      d3.selectAll(".checkbox").each(function(d){
+        cb = d3.select(this);
+        grp = cb.property("value")
+
+      // If the box is check, I show the group
+      if(cb.property("checked")){
+        svg.selectAll("."+grp).transition().duration(1000).style("opacity", 1)
+            .attr("r", function(d){ return z(radious(d.pl_rade)); })
+
+      // Otherwise I hide it
+      }else{
+        svg.selectAll("."+grp).transition().duration(1000).style("opacity", 0).attr("r", 0)
+      }})
+
+
+    // When a button change, I run the update function
+    d3.selectAll(".checkbox").on("change",update);
+
+    // And I initialize it at the beginning
+    update();
+
+      }
+    
+
 })
 
 
 
 //-------------------------------------
+
+
+    // // For each check box:
+    // d3.selectAll(".checkbox").each(function(d){
+    //   cb = d3.select(this);
+    //   grp = cb.property("value")
+
+    //   // If the box is check, I show the group
+    //   if(cb.property("checked")){
+    //     svg.selectAll("."+grp).transition().duration(1000).style("opacity", 1).attr("r", function(d){ return z(radious(d.pl_rade)); })
+
+    //   // Otherwise I hide it
+    //   }else{
+    //     svg.selectAll("."+grp).transition().duration(1000).style("opacity", 0).attr("r", 0)
+    //   }})
 
 
     // second y axis------------------------
